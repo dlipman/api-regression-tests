@@ -95,24 +95,38 @@ class APIRegressionTest(object):
         score = total_score / count
         return score
 
-    def _calculate_one_line_scores(self, s_line):
-        expected = np.array(s_line.all_results)
-        expected_size = expected.size # these 2 steps done here in case we need to submit the # of expected results
-        if expected_size == 0:
-            raise Exception("No expected results given for submission: " + s_line.submission)
-        url = "http://nakdanserver.dicta.org.il:8080/simplemodernnakdan"
-        processed_response = self.get_response(url, s_line.submission)
+    def get_url(self):
+        return "http://nakdanserver.dicta.org.il:8080/simplemodernnakdan"
+
+    def generate_score_dict(self, expected, processed_response):
         score = self.compare_results(expected, processed_response)
         res = dict(
             final_score=score,
         )
-
         return res
+
+    def deal_with_special_columns(self, s_line):
+        return
+
+    def _calculate_one_line_scores(self, s_line):
+        expected = np.array(s_line.all_results)
+        self.deal_with_special_columns(s_line)
+        expected_size = expected.size  # these 2 steps done here in case we need to submit the # of expected results
+        if expected_size == 0:
+            raise Exception("No expected results given for submission: " + s_line.submission)
+        url = self.get_url()
+        processed_response = self.get_response(url, s_line.submission)
+        res = self.generate_score_dict(expected, processed_response)
+        return res
+
+    def choose_result_columns(self, results):
+        return results[["submission", "final_score"]]
 
     def calculate_all_lines_scores(self, submission_lines):
         results = pd.DataFrame.from_records(submission_lines.apply(self._calculate_one_line_scores, axis=1))
         results["submission"] = submission_lines["submission"]
-        return results[["submission", "final_score"]]
+        chosen_result_columns = self.choose_result_columns(results)
+        return chosen_result_columns
 
     @staticmethod
     def read_submission_lines(fname, skip_header=True):

@@ -25,7 +25,10 @@ class NakdanAPIRegressionTest(APIRegressionTest):
     def postprocess_data(self, response_data):
         # for response_item in response_data.content:
         #     print(response_item)
-        processed = response_data.json()
+        if response_data.status_code == 200:
+            processed = response_data.json()
+        else:
+            raise Exception(response_data.text)
         return processed
 
     def get_words(self, json_list):
