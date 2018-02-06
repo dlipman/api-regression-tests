@@ -28,7 +28,7 @@ class NikudProcessor(object):
         return parser
 
     def sep_into_blocks(self, all_text):
-        block_size = 70 # default for now
+        block_size = 140 # default for now
         block_list = textwrap.wrap(all_text, block_size, break_long_words=False)
         return block_list
 

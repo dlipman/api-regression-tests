@@ -50,7 +50,7 @@ class NakdanAPIRegressionTest(APIRegressionTest):
             score = 1.0
         else:
             score = 0.0
-        print("Score = %f" % score)
+        print("One word score = %f" % score)
         return score
 
     def score_one_result(self, result, processed_response):
@@ -63,9 +63,10 @@ class NakdanAPIRegressionTest(APIRegressionTest):
                 print("Comparing word #%d of current line." % (i+1))
                 words_score_tally += self.compare_vowelized_words(expected_word_list[i],
                                                                   response_word_list[i]["options"][0])
-                chars_score_tally += self.compare_word_characters(expected_word_list[i],
-                                                                  response_word_list[i]["options"][0])
-                print("Char score = %d out of 100" % round(chars_score_tally * 100))
+                one_word_char_score = self.compare_word_characters(expected_word_list[i],
+                                                                   response_word_list[i]["options"][0])
+                chars_score_tally += one_word_char_score
+                print("Char score = %d out of 100" % round(one_word_char_score * 100))
             words_score = words_score_tally / len(response_word_list)
             chars_score = chars_score_tally / len(response_word_list)
         else:
@@ -86,6 +87,9 @@ class NakdanAPIRegressionTest(APIRegressionTest):
 
     def choose_result_columns(self, results):
         return results[["submission", "words_score", "chars_score", "final_score"]]
+
+    def generate_score_dict(self, expected, processed_response):
+        return self.compare_results(expected, processed_response)
 
 
 if __name__ == "__main__":
