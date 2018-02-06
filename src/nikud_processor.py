@@ -48,7 +48,13 @@ class NikudProcessor(object):
             ublock = ublock[:meteg_pos-1] + ublock[meteg_pos+1:]
         return ublock
 
+    def single_spaces(self, block):
+        while block.find('  ') != -1:
+            block = re.sub('  ', ' ', block)
+        return block
+
     def convert_one_block(self, block):
+        block = self.single_spaces(block)
         no_nikud = self.strip_nikud(block)
         with_nikud = self.remove_extra_letters(block)
         res = dict(
@@ -72,6 +78,8 @@ class NikudProcessor(object):
         print("Reading input from file: {}".format(self.input_fname))
         file = open(self.input_fname)
         all_text = file.read()
+        all_text = re.sub(r'[A-Za-z0-9*\[\]*!:();?\''r']','',all_text)
+        all_text = re.sub(ur'\xc2\xba','',all_text)
         block_list = self.sep_into_blocks(all_text)
         print("{} blocks of text were read from input".format(len(block_list)))
         print("Converting into unvowelized and vowelized versions")
